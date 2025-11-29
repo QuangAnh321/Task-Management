@@ -18,7 +18,6 @@ public class SecurityConfig {
             .csrf(config -> config.disable())
             .httpBasic(config -> config.disable())
             .formLogin(config -> config.disable())
-            .oauth2Client(Customizer.withDefaults())
             .oauth2Login(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/task-management/health-check").permitAll()

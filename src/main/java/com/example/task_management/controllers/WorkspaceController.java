@@ -16,14 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.task_management.controllers.requests.WorkspaceRequest;
+import com.example.task_management.controllers.requests.workspace.WorkspaceCreateRequest;
+import com.example.task_management.controllers.requests.workspace.WorkspaceUpdateRequest;
 import com.example.task_management.controllers.response.BasicResponse;
 import com.example.task_management.controllers.response.BasicResponseWithData;
 import com.example.task_management.models.Workspace;
 import com.example.task_management.services.WorkspaceService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/workspaces")
+@RequestMapping("/api/v1/task-management/workspaces")
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
@@ -50,7 +53,7 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<BasicResponseWithData<Workspace>> createWorkspace(
-            @RequestBody WorkspaceRequest request, @AuthenticationPrincipal OidcUser oidcUser) {
+            @RequestBody @Valid WorkspaceCreateRequest request, @AuthenticationPrincipal OidcUser oidcUser) {
         var userEmail = oidcUser.getEmail();
         var newWorkspace = workspaceService.createWorkspace(
                 request.name(),
@@ -65,7 +68,7 @@ public class WorkspaceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<BasicResponseWithData<Workspace>> updateWorkspace(
-            @RequestBody WorkspaceRequest request, @PathVariable("id") BigInteger id,
+            @RequestBody @Valid WorkspaceUpdateRequest request, @PathVariable("id") BigInteger id,
             @AuthenticationPrincipal OidcUser oidcUser) {
         var userEmail = oidcUser.getEmail();
         var updatedWorkspace = workspaceService.updateWorkspace(
@@ -80,7 +83,7 @@ public class WorkspaceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BasicResponse> deleteWorkspace(@PathVariable BigInteger id, @AuthenticationPrincipal OidcUser oidcUser) {
+    public ResponseEntity<BasicResponse> deleteWorkspace(@PathVariable("id") BigInteger id, @AuthenticationPrincipal OidcUser oidcUser) {
         var userEmail = oidcUser.getEmail();
         workspaceService.deleteWorkspace(id, userEmail);
         return ResponseEntity

@@ -50,8 +50,10 @@ public class WorkspaceService {
         if (workspaceToBeUpdated.isPresent()) {
             var workspaceRecord = workspaceToBeUpdated.get();
             if (workspaceRecord.getOwnerEmail().equals(ownerEmail)) {
-                workspaceRecord.setName(name);
-                workspaceRecord.setDescription(description);
+                var newName = name != null ? name : workspaceRecord.getName();
+                var newDescription = description != null ? description : workspaceRecord.getDescription();
+                workspaceRecord.setName(newName);
+                workspaceRecord.setDescription(newDescription);
                 WorkspaceRecord updatedWorkspaceRecord = workspaceRepository.save(workspaceRecord);
                 return new Workspace(updatedWorkspaceRecord);
             } else {
