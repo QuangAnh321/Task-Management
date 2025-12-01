@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import com.example.task_management.controllers.response.BasicResponse;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.experimental.var;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

@@ -21,40 +21,40 @@ public class WorkspaceService {
         this.workspaceRepository = workspaceRepository;
     }
 
-    public List<Workspace> getAllWorkspaces() {
+    public List<Workspace> getAll() {
         var allWorkspaceRecords = workspaceRepository.findAll();
         return allWorkspaceRecords.stream()
                 .map(Workspace::new)
                 .toList();
     }
 
-    public Workspace getWorkspaceById(BigInteger id) {
+    public Workspace getById(BigInteger id) {
         return workspaceRepository.findById(id)
                 .map(Workspace::new)
                 .orElseThrow(
                         () -> new EntityNotFoundException(MessageFormat.format("Workspace with id {0} not found", id)));
     }
 
-    public Workspace createWorkspace(String name, String description, String ownerEmail) {
+    public Workspace create(String name, String description, String ownerEmail) {
         var workspaceRecord = new WorkspaceRecord();
         workspaceRecord.setName(name);
         workspaceRecord.setDescription(description);
         workspaceRecord.setOwnerEmail(ownerEmail);
 
-        WorkspaceRecord newWorkspaceRecord = workspaceRepository.save(workspaceRecord);
+        var newWorkspaceRecord = workspaceRepository.save(workspaceRecord);
         return new Workspace(newWorkspaceRecord);
     }
 
-    public Workspace updateWorkspace(BigInteger id, String name, String description, String ownerEmail) {
-        var workspaceToBeUpdated = workspaceRepository.findById(id);
-        if (workspaceToBeUpdated.isPresent()) {
-            var workspaceRecord = workspaceToBeUpdated.get();
+    public Workspace update(BigInteger id, String name, String description, String ownerEmail) {
+        var workspaceRecordOpt = workspaceRepository.findById(id);
+        if (workspaceRecordOpt.isPresent()) {
+            var workspaceRecord = workspaceRecordOpt.get();
             if (workspaceRecord.getOwnerEmail().equals(ownerEmail)) {
                 var newName = name != null ? name : workspaceRecord.getName();
                 var newDescription = description != null ? description : workspaceRecord.getDescription();
                 workspaceRecord.setName(newName);
                 workspaceRecord.setDescription(newDescription);
-                WorkspaceRecord updatedWorkspaceRecord = workspaceRepository.save(workspaceRecord);
+                var updatedWorkspaceRecord = workspaceRepository.save(workspaceRecord);
                 return new Workspace(updatedWorkspaceRecord);
             } else {
                 throw new SecurityException("You do not have permission to update this workspace");
@@ -64,6 +64,7 @@ public class WorkspaceService {
         }
     }
 
+    // Todo: Consider deleteing related boards, task lists and tasks when deleting a workspace
     public void deleteWorkspace(BigInteger id, String ownerEmail) {
         var workspaceTobeDeleted = workspaceRepository.findById(id);
         if (workspaceTobeDeleted.isPresent()) {

@@ -36,26 +36,26 @@ public class WorkspaceController {
     }
 
     @GetMapping
-    public ResponseEntity<BasicResponseWithData<Workspace>> getAllWorkspaces() {
+    public ResponseEntity<BasicResponseWithData<Workspace>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new BasicResponseWithData<Workspace>(true, "Workspaces retrieved successfully",
-                        workspaceService.getAllWorkspaces()));
+                        workspaceService.getAll()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BasicResponseWithData<Workspace>> getWorkspaceById(@PathVariable BigInteger id) {
+    public ResponseEntity<BasicResponseWithData<Workspace>> getById(@PathVariable("id") BigInteger id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new BasicResponseWithData<Workspace>(true, "Workspace retrieved successfully",
-                        List.of(workspaceService.getWorkspaceById(id))));
+                        List.of(workspaceService.getById(id))));
     }
 
     @PostMapping
-    public ResponseEntity<BasicResponseWithData<Workspace>> createWorkspace(
-            @RequestBody @Valid WorkspaceCreateRequest request, @AuthenticationPrincipal OidcUser oidcUser) {
-        var userEmail = oidcUser.getEmail();
-        var newWorkspace = workspaceService.createWorkspace(
+    public ResponseEntity<BasicResponseWithData<Workspace>> create(
+            @RequestBody @Valid WorkspaceCreateRequest request, @AuthenticationPrincipal OidcUser currentUser) {
+        var userEmail = currentUser.getEmail();
+        var newWorkspace = workspaceService.create(
                 request.name(),
                 request.description(),
                 userEmail);
@@ -67,11 +67,11 @@ public class WorkspaceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BasicResponseWithData<Workspace>> updateWorkspace(
+    public ResponseEntity<BasicResponseWithData<Workspace>> update(
             @RequestBody @Valid WorkspaceUpdateRequest request, @PathVariable("id") BigInteger id,
-            @AuthenticationPrincipal OidcUser oidcUser) {
-        var userEmail = oidcUser.getEmail();
-        var updatedWorkspace = workspaceService.updateWorkspace(
+            @AuthenticationPrincipal OidcUser currentUser) {
+        var userEmail = currentUser.getEmail();
+        var updatedWorkspace = workspaceService.update(
                 id,
                 request.name(),
                 request.description(),
@@ -83,8 +83,8 @@ public class WorkspaceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BasicResponse> deleteWorkspace(@PathVariable("id") BigInteger id, @AuthenticationPrincipal OidcUser oidcUser) {
-        var userEmail = oidcUser.getEmail();
+    public ResponseEntity<BasicResponse> delete(@PathVariable("id") BigInteger id, @AuthenticationPrincipal OidcUser currentUser) {
+        var userEmail = currentUser.getEmail();
         workspaceService.deleteWorkspace(id, userEmail);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
