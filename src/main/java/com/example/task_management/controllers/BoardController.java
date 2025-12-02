@@ -25,7 +25,7 @@ import com.example.task_management.services.BoardService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/task-management/boards")
+@RequestMapping("/api/v1/task-management")
 public class BoardController {
     
     private final BoardService boardService;
@@ -34,7 +34,7 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    @GetMapping
+    @GetMapping("/boards")
     public ResponseEntity<BasicResponseWithData<Board>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -42,7 +42,7 @@ public class BoardController {
                         boardService.getAll()));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/boards/{id}")
     public ResponseEntity<BasicResponseWithData<Board>> getById(@PathVariable("id") BigInteger id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,7 +50,7 @@ public class BoardController {
                         List.of(boardService.getById(id))));
     }
 
-    @GetMapping("/workspace/{workspaceId}")
+    @GetMapping("/workspaces/{workspaceId}/boards")
     public ResponseEntity<BasicResponseWithData<Board>> getAllByParentId(@PathVariable("workspaceId") BigInteger workspaceId) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -58,7 +58,7 @@ public class BoardController {
                         boardService.getAllByParentId(workspaceId)));
     }
 
-    @PostMapping
+    @PostMapping("/boards")
     public ResponseEntity<BasicResponseWithData<Board>> create(@RequestBody @Valid BoardCreateRequest request) {
         var newBoard = boardService.create(
                 request.name(),
@@ -71,7 +71,7 @@ public class BoardController {
                         List.of(newBoard)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/boards/{id}")
     public ResponseEntity<BasicResponseWithData<Board>> update(
             @RequestBody @Valid BoardUpdateRequest request, @PathVariable("id") BigInteger id,
             @AuthenticationPrincipal OidcUser currentUser) {
@@ -87,10 +87,10 @@ public class BoardController {
                         List.of(updatedBoard)));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/boards/{id}")
     public ResponseEntity<BasicResponse> delete(@PathVariable("id") BigInteger id, @AuthenticationPrincipal OidcUser currentUser) {
         var userEmail = currentUser.getEmail();
-        boardService.deleteBoard(id, userEmail);
+        boardService.delete(id, userEmail);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(new BasicResponse(true, "Board deleted successfully"));

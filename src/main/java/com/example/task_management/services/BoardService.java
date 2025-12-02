@@ -40,10 +40,16 @@ public class BoardService {
     }
 
     public List<Board> getAllByParentId(BigInteger workspaceId) {
-        var boardRecords = boardRepository.findAllByParentWorkspaceId(workspaceId);
-        return boardRecords.stream()
+        var parentWorkspace = workspaceRepository.findById(workspaceId);
+        if (parentWorkspace.isEmpty()) {
+            throw new EntityNotFoundException(
+                    MessageFormat.format("Workspace with id {0} not found when getting boards", workspaceId));
+        } else {
+            var boardRecords = boardRepository.findAllByParentWorkspaceId(workspaceId);
+            return boardRecords.stream()
                 .map(Board::new)
                 .toList();
+        }
     }
 
     public Board create(String name, String description, BigInteger parentWorkspaceId) {
@@ -93,26 +99,26 @@ public class BoardService {
                 var newDescription = description != null ? description : boardRecord.getDescription();
                 boardRecord.setName(newName);
                 boardRecord.setDescription(newDescription);
-                var updatedWorkspaceRecord = boardRepository.save(boardRecord);
-                return new Board(updatedWorkspaceRecord);
+                var updatedBoardRecord = boardRepository.save(boardRecord);
+                return new Board(updatedBoardRecord);
             } else {
                 throw new SecurityException("You do not have permission to update this board");
             }
         } else {
-            throw new EntityNotFoundException(MessageFormat.format("Workspace with id {0} not found", id));
+            throw new EntityNotFoundException(MessageFormat.format("Board with id {0} not found", id));
         }
     }
 
-    public void deleteBoard(BigInteger id, String ownerEmail) {
+    public void delete(BigInteger id, String ownerEmail) {
         var boardTobeDeleted = boardRepository.findById(id);
         if (boardTobeDeleted.isPresent()) {
             if (isCurrentUserOwnThisResource(boardTobeDeleted.get(), ownerEmail)) {
                 boardRepository.deleteById(id);
             } else {
-                throw new SecurityException("updateBoard: You do not have permission to delete this board");
+                throw new SecurityException("You do not have permission to delete this board");
             }
         } else {
-            throw new EntityNotFoundException(MessageFormat.format("Workspace with id {0} not found", id));
+            throw new EntityNotFoundException(MessageFormat.format("Board with id {0} not found", id));
         }
     }
 
