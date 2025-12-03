@@ -10,8 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException.Forbidden;
-
 import com.example.task_management.controllers.response.BasicResponse;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -27,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(SecurityException.class)
-    public BasicResponse handleForbiddenException(Forbidden ex) {
+    public BasicResponse handleForbiddenException(SecurityException ex) {
         return new BasicResponse(false, ex.getMessage());
     }
 

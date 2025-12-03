@@ -12,10 +12,12 @@ public class Task {
     private BigInteger id;
     private String name;
     private String description;
+    private TaskList parentTaskList;
 
     public Task(TaskRecord record) {
         this.id = record.getId();
         this.name = record.getName();
         this.description = record.getDescription();
+        this.parentTaskList = new TaskList(record.getParentTaskList());
     }
 }

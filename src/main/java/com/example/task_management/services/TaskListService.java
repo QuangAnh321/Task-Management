@@ -24,8 +24,8 @@ public class TaskListService {
     }
 
     public List<TaskList> getAll() {
-        var allBoardRecords = taskListRepository.findAll();
-        return allBoardRecords.stream()
+        var allTaskListRecords = taskListRepository.findAll();
+        return allTaskListRecords.stream()
                 .map(TaskList::new)
                 .toList();
     }
@@ -82,7 +82,7 @@ public class TaskListService {
                 throw new SecurityException("You do not have permission to update this task list");
             }
         } else {
-            throw new EntityNotFoundException(MessageFormat.format("Workspace with id {0} not found", id));
+            throw new EntityNotFoundException(MessageFormat.format("Task list with id {0} not found", id));
         }
     }
 
