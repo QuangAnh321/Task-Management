@@ -21,6 +21,7 @@ public class SecurityConfig {
             .oauth2Login(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/task-management/health-check").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             );
         
