@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.example.task_management.models.Task;
@@ -12,25 +14,32 @@ import com.example.task_management.repositories.task.TaskRepository;
 import com.example.task_management.repositories.taskList.TaskListRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.java.Log;
 
 @Service
+@Log
 public class TaskService {
     
     private final TaskRepository taskRepository;
     private final TaskListRepository taskListRepository;
-
-    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository) {
+    private final RedisService redisService;
+    
+    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository, RedisService redisService) {
         this.taskRepository = taskRepository;
         this.taskListRepository = taskListRepository;
+        this.redisService = redisService;
     }
 
+    @Cacheable(value = "tasksCache")
     public List<Task> getAll() {
+        log.info("Fetching all tasks from database...");
         var allTaskRecords = taskRepository.findAll();
         return allTaskRecords.stream()
                 .map(Task::new)
                 .toList();
     }
 
+    @Cacheable(value = "tasksCache", key = "#id")
     public Task getById(BigInteger id) {
         return taskRepository.findById(id)
                 .map(Task::new)
@@ -52,6 +61,7 @@ public class TaskService {
         }
     }
 
+    @CacheEvict(value = "tasksCache", allEntries = true)
     public Task create(String name, String description, BigInteger parentTaskListId) {
         var parentTaskList = taskListRepository.findById(parentTaskListId);
         if (parentTaskList.isEmpty()) {
@@ -68,6 +78,7 @@ public class TaskService {
         }
     }
 
+    @CacheEvict(value = "tasksCache", allEntries = true)
     public Task update(BigInteger id, String name, String description, BigInteger parentTaskListId, String ownerEmail) {
         System.out.println("Parent Task List ID: " + parentTaskListId);
         var taskRecordOpt = taskRepository.findById(id);

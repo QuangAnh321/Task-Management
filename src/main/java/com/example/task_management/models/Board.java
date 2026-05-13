@@ -1,5 +1,6 @@
 package com.example.task_management.models;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import com.example.task_management.repositories.board.BoardRecord;
@@ -7,7 +8,7 @@ import com.example.task_management.repositories.board.BoardRecord;
 import lombok.Data;
 
 @Data
-public class Board {
+public class Board implements Serializable {
     
     private BigInteger id;
     private String name;
