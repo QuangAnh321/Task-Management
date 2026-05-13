@@ -1,5 +1,6 @@
 package com.example.task_management.models;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import com.example.task_management.repositories.workspace.WorkspaceRecord;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class Workspace {
+public class Workspace implements Serializable {
     
     private BigInteger id;
     private String name;

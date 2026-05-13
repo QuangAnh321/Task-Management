@@ -18,11 +18,12 @@ public class SecurityConfig {
             .csrf(config -> config.disable())
             .httpBasic(config -> config.disable())
             .formLogin(config -> config.disable())
-            .oauth2Login(Customizer.withDefaults())
+            // .oauth2Login(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/task-management/health-check").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
-                .anyRequest().authenticated()
+                // .anyRequest().authenticated()
+                .anyRequest().permitAll()
             );
         
         return http.build();

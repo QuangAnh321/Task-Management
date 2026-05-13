@@ -3,13 +3,16 @@ package com.example.task_management.services;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import com.example.task_management.models.TaskList;
 import com.example.task_management.repositories.board.BoardRepository;
 import com.example.task_management.repositories.taskList.TaskListRecord;
 import com.example.task_management.repositories.taskList.TaskListRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -17,17 +20,21 @@ public class TaskListService {
     
     private final BoardRepository boardRepository;
     private final TaskListRepository taskListRepository;
+    private final RedisService redisService;
 
-    public TaskListService(BoardRepository boardRepository, TaskListRepository taskListRepository) {
+    public TaskListService(BoardRepository boardRepository, TaskListRepository taskListRepository, RedisService redisService) {
         this.boardRepository = boardRepository;
         this.taskListRepository = taskListRepository;
+        this.redisService = redisService;
     }
 
     public List<TaskList> getAll() {
         var allTaskListRecords = taskListRepository.findAll();
-        return allTaskListRecords.stream()
+        var taskListResult = allTaskListRecords.stream()
                 .map(TaskList::new)
                 .toList();
+        redisService.setValueWithExpiry("allTaskLists", taskListResult.toString(), 120, TimeUnit.SECONDS);
+        return taskListResult;
     }
 
     public TaskList getById(BigInteger id) {
@@ -51,6 +58,7 @@ public class TaskListService {
         }
     }
 
+    @CacheEvict(value = "allTaskLists", allEntries = true)
     public TaskList create(String name, String description, BigInteger parentBoardId) {
         var parentBoard = boardRepository.findById(parentBoardId);
         if (parentBoard.isEmpty()) {
@@ -67,6 +75,7 @@ public class TaskListService {
         }
     }
 
+    @CacheEvict(value = "allTaskLists", allEntries = true)
     public TaskList update(BigInteger id, String name, String description, String ownerEmail) {
         var taskListRecordOpt = taskListRepository.findById(id);
         if (taskListRecordOpt.isPresent()) {

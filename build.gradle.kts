@@ -44,6 +44,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
   	implementation("org.springframework.boot:spring-boot-starter-actuator")
   	testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
 }
 
 tasks.withType<Test> {
