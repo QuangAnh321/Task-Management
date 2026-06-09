@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,8 +75,8 @@ public class TaskListController {
     @PutMapping("/task-lists/{id}")
     public ResponseEntity<BasicResponseWithData<TaskList>> update(
             @RequestBody @Valid TaskListUpdateRequest request, @PathVariable("id") BigInteger id,
-            @AuthenticationPrincipal OidcUser currentUser) {
-        var userEmail = currentUser.getEmail();
+            @AuthenticationPrincipal Jwt currentUser) {
+        var userEmail = currentUser.getClaimAsString("email");
         var updatedTaskList = taskListService.update(
                 id,
                 request.name(),
@@ -89,8 +89,8 @@ public class TaskListController {
     }
 
     @DeleteMapping("/task-lists/{id}")
-    public ResponseEntity<BasicResponse> delete(@PathVariable("id") BigInteger id, @AuthenticationPrincipal OidcUser currentUser) {
-        var userEmail = currentUser.getEmail();
+    public ResponseEntity<BasicResponse> delete(@PathVariable("id") BigInteger id, @AuthenticationPrincipal Jwt currentUser) {
+        var userEmail = currentUser.getClaimAsString("email");
         taskListService.delete(id, userEmail);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

@@ -22,12 +22,10 @@ public class TaskService {
     
     private final TaskRepository taskRepository;
     private final TaskListRepository taskListRepository;
-    private final RedisService redisService;
     
-    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository, RedisService redisService) {
+    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository) {
         this.taskRepository = taskRepository;
         this.taskListRepository = taskListRepository;
-        this.redisService = redisService;
     }
 
     @Cacheable(value = "tasksCache")
