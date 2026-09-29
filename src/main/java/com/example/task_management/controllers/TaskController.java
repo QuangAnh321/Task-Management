@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.task_management.controllers.requests.task.TaskCreateRequest;
+import com.example.task_management.controllers.requests.task.TaskStreamRequest;
 import com.example.task_management.controllers.requests.task.TaskUpdateRequest;
 import com.example.task_management.controllers.response.BasicResponse;
 import com.example.task_management.controllers.response.BasicResponseWithData;
@@ -41,6 +43,18 @@ public class TaskController {
                 .status(HttpStatus.OK)
                 .body(new BasicResponseWithData<Task>(true, "Task retrieved successfully",
                         taskService.getAll()));
+    }
+
+    @GetMapping("/tasks/stream")
+    public ResponseEntity<SseEmitter> streamAllTasks() {
+        var sseEmitter = taskService.streamAllTasks();
+        return ResponseEntity.ok(sseEmitter);
+    }
+
+    @PostMapping("/tasks/stream")
+    public ResponseEntity<SseEmitter> streambyTaskListIds(@RequestBody @Valid TaskStreamRequest request) {
+        var sseEmitter = taskService.streamTasksByListIds(request.taskListIds());
+        return ResponseEntity.ok(sseEmitter);
     }
 
     @GetMapping("/tasks/{id}")
