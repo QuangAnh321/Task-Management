@@ -1,5 +1,6 @@
 package com.example.task_management.controllers.exceptionHandlers;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +42,11 @@ public class GlobalExceptionHandler {
         });
         var errorsMessage = String.join("; ", errors.values());
         return new ResponseEntity<>(new BasicResponse(false, errorsMessage), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<Void> handleIOException(IOException ex) {
+        return ResponseEntity.noContent().build();
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

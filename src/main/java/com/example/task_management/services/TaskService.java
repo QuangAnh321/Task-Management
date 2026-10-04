@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.task_management.models.Task;
 import com.example.task_management.repositories.task.TaskRecord;
@@ -22,19 +23,17 @@ public class TaskService {
     
     private final TaskRepository taskRepository;
     private final TaskListRepository taskListRepository;
-    
-    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository) {
+    private final SSEService sseService;
+
+    public TaskService(TaskRepository taskRepository, TaskListRepository taskListRepository, SSEService sseService) {
         this.taskRepository = taskRepository;
         this.taskListRepository = taskListRepository;
+        this.sseService = sseService;
     }
 
     @Cacheable(value = "tasksCache")
     public List<Task> getAll() {
-        log.info("Fetching all tasks from database...");
-        var allTaskRecords = taskRepository.findAll();
-        return allTaskRecords.stream()
-                .map(Task::new)
-                .toList();
+        return fetchAll();
     }
 
     @Cacheable(value = "tasksCache", key = "#id")
@@ -117,10 +116,31 @@ public class TaskService {
         }
     }
 
+    public SseEmitter streamAllTasks() {
+        var allTasks = fetchAll();
+        return sseService.streamSseEvent(allTasks);
+    }
+
+    public SseEmitter streamTasksByListIds(List<BigInteger> taskListIds) {
+        var taskRecords = taskRepository.findAllByParentTaskListIdIn(taskListIds);
+        var tasks = taskRecords.stream()
+                .map(Task::new)
+                .toList();
+        return sseService.streamSseEvent(tasks);
+    }
+
     private boolean isCurrentUserOwnThisResource(TaskRecord taskRecord, String ownerEmail) {
         return taskRecord
             .getParentTaskList()
             .getParentBoard()
             .getParentWorkspace().getOwnerEmail().equals(ownerEmail);
+    }
+
+    private List<Task> fetchAll() {
+        log.info("Fetching all tasks from database...");
+        var allTaskRecords = taskRepository.findAll();
+        return allTaskRecords.stream()
+                .map(Task::new)
+                .toList();
     }
 }

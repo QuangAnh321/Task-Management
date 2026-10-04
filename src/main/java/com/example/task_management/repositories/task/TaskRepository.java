@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TaskRepository extends JpaRepository<TaskRecord, BigInteger> {
     
      List<TaskRecord> findAllByParentTaskListId(BigInteger taskId);
+
+     List<TaskRecord> findAllByParentTaskListIdIn(List<BigInteger> taskListIds);
 }
